@@ -4,65 +4,148 @@
 
 A **iB2B** deseja informatizar o processo de empréstimo de livros de sua biblioteca.
 
-O sistema deve apoiar todo o ciclo de uso do acervo, desde o cadastro de pessoas e livros até reserva, empréstimo, renovação, devolução, inspeção, eventual reparo e cobrança de multas por atraso.
+O sistema deve permitir o cadastro e a manutenção das informações necessárias ao funcionamento da biblioteca, além de suportar reserva, consulta de reservas, empréstimo, renovação, devolução, inspeção de livros, reparo, geração de multas e quitação de boletos.
 
-O desafio envolve diferentes perfis de usuário e áreas da organização, que precisam colaborar ao longo do processo sem perder a consistência das informações sobre pessoas, estudantes, atendentes, livros e transações.
+Reserva, empréstimo e devolução são transações. Toda transação ocorre em uma data e envolve um livro, um estudante e um atendente.
 
 ## Domínio
 
-O domínio possui os seguintes conceitos principais:
+### Pessoa
 
-- **Pessoa**: possui nome, sobrenome e CPF.
-- **Estudante**: é um papel associado a uma pessoa e possui um identificador próprio.
-- **Atendente**: é um papel associado a uma pessoa e possui um identificador próprio.
-- **Livro**: possui identificador, título e um estado que representa sua situação atual.
-- **Reserva**: registra a intenção de um estudante de utilizar um livro disponível.
-- **Empréstimo**: registra que um livro foi entregue a um estudante por um período determinado.
-- **Devolução**: registra o retorno de um livro emprestado.
-- **Multa**: representa uma cobrança gerada quando a devolução ocorre após o vencimento.
-- **Boleto**: meio utilizado para cobrança e pagamento de uma multa.
+Toda pessoa possui:
 
-Reserva, empréstimo e devolução são tipos de transação e sempre estão relacionados a um livro, um estudante, um atendente e uma data.
+- nome;
+- sobrenome;
+- CPF.
+
+### Estudante
+
+O estudante é um papel assumido por uma pessoa e possui um identificador próprio.
+
+Um estudante só pode ser cadastrado se a pessoa à qual ele está associado já estiver cadastrada.
+
+### Atendente
+
+O atendente é um papel assumido por uma pessoa e possui um identificador próprio.
+
+Um atendente só pode ser cadastrado se a pessoa à qual ele está associado já estiver cadastrada.
+
+### Livro
+
+Todo livro possui:
+
+- identificador;
+- título;
+- estado.
+
+Os livros cadastrados pertencem ao acervo da biblioteca.
+
+### Transações
+
+As movimentações de reserva, empréstimo e devolução possuem um único ponto de acesso interno, denominado **Movimentação**, sendo mantidas por associações diferentes.
+
+As informações de Pessoa, Estudante e Atendente possuem um único ponto de acesso interno, denominado **Relacionamento**, também mantidas por associações diferentes.
 
 ## Atores
 
-O sistema é utilizado por quatro atores principais:
+O sistema possui os seguintes atores:
 
-- **Administrador**: mantém os cadastros de pessoas, estudantes, atendentes e livros.
-- **Estudante**: consulta e utiliza o acervo por meio de reservas, empréstimos e renovações.
-- **Atendente**: entrega livros, registra devoluções, inspeciona exemplares e participa do processo de cobrança quando há atraso.
-- **Banco**: recebe o pagamento de boletos e informa sua quitação.
+- **Administrador**;
+- **Estudante**;
+- **Atendente**;
+- **Banco**, como participante externo do processo de pagamento.
 
-## Áreas envolvidas
+### Administrador
 
-As informações do processo ficam distribuídas entre diferentes áreas da organização:
+O Administrador é responsável pelas funcionalidades de manutenção de:
 
-- **RH**: pessoas e atendentes.
-- **Acadêmico**: estudantes.
-- **Biblioteca**: livros, reservas, empréstimos, renovações e devoluções.
+- Livro;
+- Pessoa;
+- Estudante;
+- Atendente.
+
+Cada uma dessas funcionalidades permite:
+
+- inserir;
+- consultar;
+- atualizar;
+- excluir.
+
+### Estudante
+
+O Estudante pode:
+
+- solicitar a reserva de um livro;
+- consultar suas reservas;
+- efetivar o empréstimo de um livro reservado;
+- renovar um empréstimo.
+
+### Atendente
+
+O Atendente participa da entrega e da devolução dos livros e pode:
+
+- registrar a devolução;
+- inspecionar o livro devolvido;
+- encaminhar um livro danificado para reparo;
+- registrar o retorno de um livro reparado;
+- solicitar a emissão de multa quando houver atraso.
+
+## Organização interna
+
+As informações do sistema são distribuídas entre quatro áreas:
+
+- **Acadêmico**: estudantes;
+- **RH**: pessoas e atendentes;
+- **Biblioteca**: livros, reservas, empréstimos, renovações e devoluções;
 - **Financeiro**: multas, boletos e quitações.
-- **Banco**: serviço externo responsável pelo pagamento do boleto.
 
-Essas áreas precisam trocar informações para completar os fluxos de negócio. Por exemplo, a Biblioteca precisa validar estudantes e atendentes cadastrados, enquanto o Financeiro precisa identificar o estudante responsável por uma multa.
+O **Banco** é um sistema externo utilizado para cobrança e confirmação de pagamentos.
 
-## Cadastro
+## Cadastro e manutenção
 
-O Administrador pode cadastrar, consultar, atualizar e excluir:
+### Livro
 
-- pessoas;
-- estudantes;
-- atendentes;
-- livros.
+Ao inserir um livro:
 
-Um estudante ou atendente só pode ser cadastrado se a pessoa à qual ele está associado já existir.
+- se ele já estiver cadastrado, o cadastro existente é apresentado;
+- caso contrário, ele é criado e inserido no acervo.
 
-Ao cadastrar um livro, ele passa a estar disponível para uso.
+Um livro cadastrado inicialmente fica **LIVRE**.
+
+Um livro também pode ser consultado, atualizado ou excluído.
+
+### Pessoa
+
+Ao inserir uma pessoa:
+
+- se ela já estiver cadastrada, seus dados são apresentados;
+- caso contrário, ela é registrada em `Relacionamento`.
+
+Uma pessoa também pode ser consultada, atualizada ou excluída.
+
+### Estudante
+
+Para cadastrar um estudante:
+
+- a pessoa correspondente deve estar cadastrada;
+- o estudante ainda não pode estar cadastrado.
+
+O estudante é registrado por meio de `Relacionamento`.
+
+### Atendente
+
+Para cadastrar um atendente:
+
+- a pessoa correspondente deve estar cadastrada;
+- o atendente ainda não pode estar cadastrado.
+
+O atendente é registrado por meio de `Relacionamento`.
 
 ## Reserva
 
-Um estudante pode solicitar a reserva de um livro.
+O Estudante solicita à Biblioteca a reserva de um livro.
 
-A reserva é aceita somente quando:
+A reserva só pode ser realizada quando:
 
 - o livro está cadastrado;
 - o estudante está cadastrado;
@@ -70,111 +153,187 @@ A reserva é aceita somente quando:
 
 Quando a reserva é aceita:
 
-1. uma reserva é registrada para aquele estudante;
-2. o livro passa para o estado **RESERVADO**.
+1. uma `Reserva` é criada para o livro e o estudante;
+2. a reserva é adicionada à `Movimentação`;
+3. o livro passa para **RESERVADO**.
 
-Caso essas condições não sejam atendidas, a reserva é recusada.
+Caso as condições não sejam atendidas, a reserva é recusada.
+
+## Consulta de reserva
+
+Uma reserva pode ser consultada na `Movimentação` utilizando o livro e o estudante envolvidos.
+
+Quando a reserva existe, seus dados são apresentados.
 
 ## Empréstimo
 
-Um livro só pode ser emprestado quando existe uma reserva registrada para o mesmo estudante.
+O empréstimo só pode ser efetivado quando existe uma reserva registrada para o mesmo livro e estudante.
 
-Quando o empréstimo é efetivado:
+Quando o empréstimo é realizado:
 
-1. a reserva deixa de estar ativa;
-2. um empréstimo é registrado;
-3. o livro passa para o estado **EMPRESTADO**;
-4. o Atendente entrega o exemplar ao Estudante.
+1. a `Reserva` é removida da `Movimentação`;
+2. um `Empréstimo` é inserido na `Movimentação`;
+3. o livro passa para **EMPRESTADO**;
+4. o Atendente entrega o livro ao Estudante.
 
 ## Renovação
 
-Um estudante pode renovar um empréstimo já existente.
+O Estudante pode solicitar a renovação de um empréstimo.
 
 A renovação é permitida quando:
 
-- o livro está **EMPRESTADO** ou **RENOVADO** para aquele estudante;
-- o limite máximo de renovações ainda não foi atingido.
+- existe um empréstimo registrado para o livro e o estudante;
+- o livro está **EMPRESTADO** ou **RENOVADO**;
+- o número de renovações é menor que 2.
 
-Cada renovação:
+Na primeira renovação:
 
-- acrescenta **30 dias** à data de vencimento;
-- incrementa a quantidade de renovações;
-- mantém o livro no estado **RENOVADO**.
+- o livro passa de **EMPRESTADO** para **RENOVADO**;
+- a data de vencimento é estendida em 30 dias;
+- o número de renovações é incrementado.
+
+Uma segunda renovação pode ser realizada enquanto o limite não tiver sido atingido, mantendo o estado **RENOVADO** e acrescentando mais 30 dias ao vencimento.
 
 Um empréstimo pode ser renovado no máximo **duas vezes**.
 
 ## Devolução e inspeção
 
-O Estudante devolve o livro ao Atendente, que registra a devolução.
+O Estudante devolve o livro ao Atendente.
 
-Nesse momento, o livro passa para o estado **DEVOLVIDO** e precisa ser inspecionado.
+O Atendente registra a devolução na Biblioteca:
 
-Após a inspeção:
+1. uma `Devolução` é inserida na `Movimentação`;
+2. o `Empréstimo` correspondente é removido;
+3. o livro passa para **DEVOLVIDO**.
 
-- se estiver em bom estado, volta para **LIVRE**;
-- se estiver danificado, passa para **REPARANDO**;
-- depois do reparo, pode voltar a **LIVRE**;
-- um exemplar sem possibilidade de reparação pode chegar ao estado final **INCINERADO**.
+Depois da devolução, o livro é inspecionado.
 
-Também pode existir a necessidade de enviar um livro livre para reparo caso algum dano seja identificado no acervo.
+### Livro em bom estado
 
-## Multas
+Se o livro estiver em bom estado:
 
-Se a devolução ocorrer depois da data de vencimento, deve ser gerada uma multa de **R$ 1,00 por dia de atraso**.
+- ele volta para **LIVRE**.
 
-O fluxo envolve Biblioteca e Financeiro:
+### Livro danificado
 
-1. a Biblioteca identifica o atraso;
-2. o Financeiro identifica o estudante responsável;
-3. a multa é calculada;
-4. um boleto é emitido;
-5. o boleto é enviado ao estudante por e-mail.
+Se o livro estiver danificado:
 
-O Estudante realiza o pagamento no Banco, que informa a quitação ao Financeiro. A multa então é registrada como quitada.
+- ele passa para **REPARANDO**;
+- é encaminhado para reparo;
+- após retornar do reparo, volta para **LIVRE**.
+
+Um livro que esteja **LIVRE** também pode ser enviado para reparo caso seja identificado algum dano no acervo.
+
+## Multa por atraso
+
+Se a devolução ocorrer depois da data de vencimento, a Biblioteca solicita ao Financeiro a emissão de uma multa.
+
+A multa é calculada no valor de:
+
+**R$ 1,00 por dia de atraso.**
+
+O Financeiro:
+
+1. identifica o estudante pelo CPF;
+2. registra a multa;
+3. emite o boleto bancário;
+4. envia o boleto ao Estudante por e-mail.
+
+## Pagamento
+
+O Estudante paga o boleto no Banco.
+
+O Banco informa a quitação ao Financeiro, que registra a multa como quitada.
 
 ## Ciclo de vida do livro
 
-Ao longo do processo, um livro pode assumir os seguintes estados:
+No fluxo descrito, o livro assume os seguintes estados:
 
-- **LIVRE**
-- **RESERVADO**
-- **EMPRESTADO**
-- **RENOVADO**
-- **DEVOLVIDO**
-- **REPARANDO**
-- **INCINERADO**
+- **LIVRE**;
+- **RESERVADO**;
+- **EMPRESTADO**;
+- **RENOVADO**;
+- **DEVOLVIDO**;
+- **REPARANDO**.
 
-O estado do livro deve representar de forma consistente sua situação real no fluxo de reserva, empréstimo, devolução e manutenção.
+As principais mudanças de estado são:
 
-## Cenário técnico
+| Origem | Evento | Condição | Destino |
+|---|---|---|---|
+| Estado inicial | cadastrar livro | livro criado | **LIVRE** |
+| **LIVRE** | reservar | estudante cadastrado | **RESERVADO** |
+| **RESERVADO** | emprestar | reserva do mesmo estudante | **EMPRESTADO** |
+| **EMPRESTADO** | renovar | primeira renovação | **RENOVADO** |
+| **RENOVADO** | renovar | limite de duas renovações não atingido | **RENOVADO** |
+| **EMPRESTADO** ou **RENOVADO** | devolver | empréstimo registrado | **DEVOLVIDO** |
+| **DEVOLVIDO** | inspecionar | livro em bom estado | **LIVRE** |
+| **DEVOLVIDO** | inspecionar | livro danificado | **REPARANDO** |
+| **LIVRE** | enviar para reparo | dano identificado no acervo | **REPARANDO** |
+| **REPARANDO** | retornar do reparo | reparo concluído | **LIVRE** |
+| **LIVRE** | excluir livro | exclusão do cadastro | estado final |
 
-O sistema é acessado por meio de uma **interface web** executada no navegador do usuário.
+Quando uma devolução ocorre com atraso, a geração da multa faz parte do processamento da devolução.
 
-A aplicação de negócio é executada em um servidor de aplicação e se comunica com os serviços e bancos de dados necessários ao funcionamento dos módulos de RH, Acadêmico, Biblioteca e Financeiro.
+## Estrutura do sistema
 
-O cenário também considera:
+O sistema é organizado em torno dos componentes correspondentes às áreas **RH**, **Acadêmico**, **Biblioteca** e **Financeiro**, além do **Banco** como componente externo e de uma **Interface Web** utilizada pelos usuários.
 
-- comunicação web via **HTTPS**;
-- persistência principal em **MySQL**;
-- uma réplica dos dados em **Oracle**;
-- comunicação da aplicação com o banco de dados via **JDBC**;
-- replicação entre os servidores de dados;
-- integração com um serviço bancário externo para cobrança e confirmação de pagamentos.
+A comunicação entre os componentes ocorre por meio de interfaces fornecidas e requeridas.
 
-## O desafio
+Como referência para as responsabilidades entre componentes:
 
-O objetivo desta kata é projetar uma arquitetura capaz de sustentar esse domínio e seus fluxos, mantendo consistência entre as diferentes áreas, regras de negócio e estados do livro.
+| Componente | Interfaces fornecidas | Interfaces requeridas |
+|---|---|---|
+| RH | `iPessoa`, `iAtendente` | — |
+| Acadêmico | `iEstudante` | `iPessoa` |
+| Biblioteca | `iLivro`, `iEmprestimo`, `iDevolucao` | `iEstudante`, `iAtendente`, `iMulta` |
+| Financeiro | `iMulta`, `iQuitacao` | `iPessoa`, `iCobranca` |
+| Banco | `iCobranca` | `iQuitacao` |
+| Interface Web | — | `iLivro`, `iPessoa`, `iEstudante`, `iAtendente`, `iEmprestimo`, `iDevolucao` |
 
-Alguns pontos que tornam o problema interessante do ponto de vista arquitetural são:
+As operações de cadastro são expostas pelas interfaces:
 
-- separação de responsabilidades entre áreas com dados distintos;
-- comunicação entre módulos internos;
-- integração com um sistema bancário externo;
-- consistência do ciclo de vida de um livro;
-- coordenação entre reserva, empréstimo, renovação e devolução;
-- processamento de multas e pagamentos;
-- evolução independente das diferentes partes do sistema;
-- persistência e replicação de dados;
-- exposição das funcionalidades por meio de uma aplicação web.
+- `iLivro`;
+- `iPessoa`;
+- `iEstudante`;
+- `iAtendente`.
 
-A solução arquitetural fica em aberto.
+Elas são implementadas, respectivamente, por:
+
+- `TratadorDeAcervo`;
+- `TratadorDePessoa`;
+- `TratadorDeEstudante`;
+- `TratadorDeAtendente`.
+
+Os serviços de reserva, consulta de reserva, empréstimo e renovação são tratados por `TratadorDeEmprestimo`.
+
+Os serviços de devolução e emissão de multa são tratados por `TratadorDeDevolucao`.
+
+A comunicação entre os tratadores e `Relacionamento`, `Acervo` e `Movimentação` utiliza delegação.
+
+## Cenário de implantação
+
+A interface com o usuário é executada em um **WebBrowser** no computador do usuário.
+
+O navegador se comunica com o servidor de aplicação por **HTTPS**.
+
+A lógica de negócio é executada em um servidor de aplicação com:
+
+- **Ubuntu**;
+- **JVM 1090**;
+- **Tomcat 10.0.11**.
+
+O sistema utiliza dois servidores de dados distintos, ambos do modelo **Dell Edge 3600**:
+
+### Banco principal
+
+- **MySQL**;
+- executado em **Windows 10**.
+
+### Réplica
+
+- **Oracle**;
+- executado em **Ubuntu**;
+- funciona como réplica do banco MySQL.
+
+A aplicação acessa o MySQL por **JDBC**, e os dados são replicados entre MySQL e Oracle.
